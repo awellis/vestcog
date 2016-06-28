@@ -2,39 +2,6 @@
 #' @import dplyr
 #' @importFrom viridis plasma
 
-#' @export
-generate_data <- function(T = 2, dt = 0.1, amplitude = 20, sensor_sd = 1.7) {
-    nsteps <- T/dt
-    t <- seq(from = 0, to = T, length.out = nsteps)
-
-    # the following generates a motion profile with single-cycle sinusoidal
-    # acceleration
-    time <- t
-    position <- amplitude*T/(2*pi) * (t-(T/(2*pi)) * sin(2*pi*t/T))
-    velocity <- amplitude * T/(2 * pi) * (1-cos(2 * pi * t/T))
-    acceleration <- amplitude * sin(2 * pi * t/T)
-    trajectory <- rbind(position, velocity, acceleration)
-
-    observations <- rnorm(ncol(trajectory), trajectory[2,], sensor_sd)
-    out <- rbind(time, trajectory, observations)
-}
-
-#' @export
-sd2precision <- function(sd) {
-    prec <- 1/(sd^2)
-    prec
-}
-
-#' @export
-neff <- function(weights) {
-    1/sum(weights^2)
-}
-
-#' @export
-Mode <- function(v) {
-    uniqv <- unique(v)
-    uniqv[which.max(tabulate(match(v, uniqv)))]
-}
 
 #' @export
 particle_filter <- function(data, N, Time, x_init, sdx_init,
@@ -230,69 +197,3 @@ smc <- function(y, phi, sigmav, sigmae, nPart, T, x0) {
     list(xh = xhatf, ll=ll, p=p, w=w)
 }
 
-
-pmcmc <- function(y, initPar, sigmav, sigmae, nPart, T, x0, nIter, stepSize) {
-
-    #
-    # Initialise variables
-    #
-    th     <- matrix(0, nrow=nIter, ncol=1)
-    thp    <- matrix(0, nrow=nIter, ncol=1)
-    ll     <- matrix(0, nrow=nIter, ncol=1)
-    llp    <- matrix(0, nrow=nIter, ncol=1)
-    accept <- matrix(0, nrow=nIter, ncol=1)
-
-    # Set the initial parameter and estimate the initial log-likelihood
-    th[1]  <- initPar
-    ll[1]  <- sm(y, th[1], sigmav, sigmae, nPart, T, x0)$ll
-
-    #
-    # Run main loop
-    #
-    for (kk in 2:nIter) {
-
-        # Propose a new parameter
-        thp[kk] <- th[kk-1] + stepSize * rnorm(1)
-
-        # Estimate the log-likelihood (don't run if unstable system)
-        if (abs(thp[kk]) < 1.0) {
-            llp[kk] <- smc(y, thp[kk], sigmav, sigmae, nPart, T, x0)$ll
-        }
-
-        # Compute the acceptance probability
-        aprob <- exp(dnorm(thp[kk], log=TRUE) - dnorm(th[kk-1], log=TRUE) + llp[kk] - ll[kk-1])
-
-        # Generate uniform random variable in U[0,1]
-        u = runif(1)
-
-        # Accept / reject step
-        # Check if | phi | > 1.0, in that case always reject.
-        if ((u < aprob) && ( abs( thp[kk] ) < 1.0 )) {
-            # Accept the parameter
-            th[kk]     <- thp[kk]
-            ll[kk]     <- llp[kk]
-            accept[kk] <- 1.0
-        } else {
-            # Reject the parameter
-            th[kk]     <- th[kk-1]
-            ll[kk]     <- ll[kk-1]
-            accept[kk] <- 0.0
-        }
-
-        # Write out progress
-        if (kk%%100 == 0) {
-            cat(sprintf("#####################################################################\n"))
-            cat(sprintf(" Iteration: %d of : %d completed.\n \n", kk, nIter))
-            cat(sprintf(" Current state of the Markov chain:       %.4f \n", th[kk] ))
-            cat(sprintf(" Proposed next state of the Markov chain: %.4f \n", thp[kk] ))
-            cat(sprintf(" Current posterior mean:                  %.4f \n", mean(th[0:kk]) ))
-            cat(sprintf(" Current acceptance rate:                 %.4f \n", mean(accept[0:kk]) ))
-            cat(sprintf("#####################################################################\n"))
-        }
-    }
-
-    #
-    # Return traces of the parameters
-    #
-    th
-}
