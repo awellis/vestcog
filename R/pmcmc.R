@@ -2,7 +2,6 @@
 #' @import dplyr
 #' @importFrom viridis plasma
 
-
 #' @export
 particle_filter <- function(data, N, Time, x_init, sdx_init,
                                 params, resample = TRUE, rs_thresh = 0.5) {

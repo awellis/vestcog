@@ -19,6 +19,6 @@ f <- function(x, t, Time, A, sd, N) {
 params <- list(sdx = 1.2, sdy = 4.0, A = 2.0, fun_x = f)
 
 out <- particle_filter(data = data, N = 100, Time = length(data$observations),
-                           x_init = 0, sdx_init = 0.5,
-                           params, resample = TRUE, rs_thresh = 0.5)
+                       x_init = 0, sdx_init = 0.5,
+                       params, resample = TRUE, rs_thresh = 0.5)
 plot_filtering_estimates(out, data = data)

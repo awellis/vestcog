@@ -15,6 +15,7 @@ Mode <- function(v) {
     uniqv[which.max(tabulate(match(v, uniqv)))]
 }
 
+
 #' @export
 generate_data <- function(T = 2, dt = 0.1, amplitude = 20, sensor_sd = 1.7) {
     nsteps <- T/dt
