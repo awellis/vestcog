@@ -4,8 +4,9 @@
 
 #' @export
 update <- function(prior, data, sd_y) {
-    out <- dnorm(data, prior, sd_y)
+    out <- dnorm(data, prior, sd_y, log = FALSE)
 }
+
 #' @export
 normalize <- function(weights) {
     out <- weights/sum(weights)
@@ -18,16 +19,20 @@ resample <- function(samples, weights) {
 
 
 #' @export
-particle_filter <- function(data, N, Time, x_init, sdx_init,
-                            params, resample = TRUE, rs_thresh = 0.5) {
+particle_filter <- function(data, Time, params, resample_particles = TRUE, rs_thresh = 0.5) {
 
     # unpack parameters
     sd_c <- params$sd_c
     sd_x <- params$sd_x
     sd_y <- params$sd_y
-    fun_x <- params$fun_x
-    fun_c <- params$fun_c
+    fun_1 <- params$funcs[[1]]
+    # fun_2 <- params$funcs[[2]]
+
+    # fun_c <- params$fun_c
     A <- params$A
+    N <- params$N
+    x_init <- params$x_init
+    sd_x_init <- params$sd_x_init
 
     # initialize variables
     x <- matrix(rep(0, N*Time), nrow = N, ncol = Time)  #matrix(nrow =  N, ncol = Time)
@@ -35,42 +40,32 @@ particle_filter <- function(data, N, Time, x_init, sdx_init,
     loglik <- rep(0, Time)
 
     # sample from prior distribution
-    x[, 1] <- rnorm(N, x_init, sdx_init)
-    # weights[, 1] <- dnorm(data$observations[1], x[, 1], sd_y)
+    x[, 1] <- rnorm(N, x_init, sd_x_init)
     weights[, 1] <- update(data$observations[1], x[, 1], sd_y)
-    # weights[, 1] <- weights[, 1]/sum(weights[, 1])
+    loglik[1] <- log(sum(weights[, 1]))
+
     weights[, 1] <- normalize(weights[, 1])
-
     x[, 1] <- resample(x[, 1], weights[, 1])
-    # x[, 1] <- sample(x[, 1], replace = TRUE, size = N, prob = weights[, 1])
-
 
     for (t in seq(2, Time)) {
-        x[, t] <- f(x, t, Time, A, sd = sd_x, N)
+        # predict 1 step ahead using process model as proposal distribution
+        x[, t] <- fun_1(x, t, Time, A, sd = sd_x, N)
 
         if (!is.na(data$observations[t])) {
-            weights[, t] <- dnorm(data$observations[t], x[, t], sd_y)
+            weights[, t] <- update(data$observations[t], x[, t], sd_y)
         } else {
             weights[, t] <- 1/N
         }
+        loglik[t] <- log(sum(weights[, t]))
 
-
-        if (resample) {
+        if (resample_particles) {
             if (neff(weights[, t]) < rs_thresh * N) {
-                x[, t] <- sample(x[, t], replace = TRUE, size = N, prob = weights[, t])
+                x[, t] <- resample(x[, t], weights[, t])
             }
         }
-
-        # TODO: do we need to reset weights after resampling?
-        # weights[, t] <- 1/N
-
     }
-
-    out <- list(x = x, weights = weights, loglik = loglik,
-                x_means = apply(x, 2, mean),
-                x_means = apply(x, 2, mean),
-                x_means = apply(x, 2, mean),
-                x_means = apply(x, 2, mean),
+    logliksum <- sum(loglik) - log(N)
+    out <- list(x = x, weights = weights, loglik = loglik, logliksum = logliksum,
                 x_means = apply(x, 2, mean),
                 x_medians = apply(x, 2, median),
                 x_quantiles = apply(x, 2,
@@ -80,6 +75,7 @@ particle_filter <- function(data, N, Time, x_init, sdx_init,
                 Time = Time,
                 N = N)
 }
+
 
 #' @export
 plot_filtering_estimates <- function(object, data, predict = FALSE) {
@@ -126,18 +122,18 @@ plot_filtering_estimates <- function(object, data, predict = FALSE) {
 }
 
 
-f <- function(x, t, Time, A, sd, N) {
-    rnorm(n = N, mean =  x[, t-1] + A * sin(2*pi*(t-1)/Time), sd = sd)
-}
-
-f1 <- function(x, t, Time, A, sd, N) {
-    rnorm(n = N, mean =  x[, t-1], sd = sd)
-}
-
-f2 <- function(x, t, Time, A, sd, N) {
-    # A * sin(2*pi*(t-1)/Time)
-    rnorm(n = N, mean =  A * sin(2*pi*(t-1)/Time), sd = sd)
-}
+# f <- function(x, t, Time, A, sd, N) {
+#     rnorm(n = N, mean =  x[, t-1] + A * sin(2*pi*(t-1)/Time), sd = sd)
+# }
+#
+# f1 <- function(x, t, Time, A, sd, N) {
+#     rnorm(n = N, mean =  x[, t-1], sd = sd)
+# }
+#
+# f2 <- function(x, t, Time, A, sd, N) {
+#     # A * sin(2*pi*(t-1)/Time)
+#     rnorm(n = N, mean =  A * sin(2*pi*(t-1)/Time), sd = sd)
+# }
 
 
 smc <- function(y, phi, sigmav, sigmae, nPart, T, x0) {
