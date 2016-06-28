@@ -3,33 +3,53 @@
 #' @importFrom viridis plasma
 
 #' @export
+update <- function(prior, data, sd_y) {
+    out <- dnorm(data, prior, sd_y)
+}
+#' @export
+normalize <- function(weights) {
+    out <- weights/sum(weights)
+}
+
+#' @export
+resample <- function(samples, weights) {
+    out <- sample(samples, replace = TRUE, size = length(samples), prob = weights)
+}
+
+
+#' @export
 particle_filter <- function(data, N, Time, x_init, sdx_init,
                             params, resample = TRUE, rs_thresh = 0.5) {
 
-    sdc <- params$sdc
-    sdx <- params$sdx
-    sdy <- params$sdy
-    fun_x <- params$funx_x
+    # unpack parameters
+    sd_c <- params$sd_c
+    sd_x <- params$sd_x
+    sd_y <- params$sd_y
+    fun_x <- params$fun_x
     fun_c <- params$fun_c
     A <- params$A
 
+    # initialize variables
     x <- matrix(rep(0, N*Time), nrow = N, ncol = Time)  #matrix(nrow =  N, ncol = Time)
     weights <- matrix(rep(0, N*Time), nrow = N, ncol = Time) #matrix(nrow =  N, ncol = Time)
     loglik <- rep(0, Time)
 
+    # sample from prior distribution
     x[, 1] <- rnorm(N, x_init, sdx_init)
-    weights[, 1] <- dnorm(data$observations[1], x[, 1], sdy)
-    weights[, 1] <- weights[, 1]/sum(weights[, 1])
+    # weights[, 1] <- dnorm(data$observations[1], x[, 1], sd_y)
+    weights[, 1] <- update(data$observations[1], x[, 1], sd_y)
+    # weights[, 1] <- weights[, 1]/sum(weights[, 1])
+    weights[, 1] <- normalize(weights[, 1])
 
-    x[, 1] <- sample(x[, 1], replace = TRUE, size = N, prob = weights[, 1])
+    x[, 1] <- resample(x[, 1], weights[, 1])
+    # x[, 1] <- sample(x[, 1], replace = TRUE, size = N, prob = weights[, 1])
 
 
     for (t in seq(2, Time)) {
-
-        x[, t] <- f(x, t, Time, A, sd = sdx, N)
+        x[, t] <- f(x, t, Time, A, sd = sd_x, N)
 
         if (!is.na(data$observations[t])) {
-            weights[, t] <- dnorm(data$observations[t], x[, t], sdy)
+            weights[, t] <- dnorm(data$observations[t], x[, t], sd_y)
         } else {
             weights[, t] <- 1/N
         }

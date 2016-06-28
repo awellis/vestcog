@@ -17,7 +17,8 @@ Mode <- function(v) {
 
 
 #' @export
-generate_data <- function(T = 2, dt = 0.1, amplitude = 20, sensor_sd = 1.7) {
+generate_data <- function(T = 2, dt = 0.1, amplitude = 20, sensor_sd = 1.7,
+                          as_df = TRUE) {
     nsteps <- T/dt
     t <- seq(from = 0, to = T, length.out = nsteps)
 
@@ -31,4 +32,10 @@ generate_data <- function(T = 2, dt = 0.1, amplitude = 20, sensor_sd = 1.7) {
 
     observations <- rnorm(ncol(trajectory), trajectory[2,], sensor_sd)
     out <- rbind(time, trajectory, observations)
+
+    if(as_df) {
+        out <- out %>% t() %>% data.frame()
+    }
+
+    return(out)
 }

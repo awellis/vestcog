@@ -1,4 +1,3 @@
-
 library(ggplot2)
 
 ggplot2::theme_set(theme_classic() +
@@ -7,16 +6,14 @@ ggplot2::theme_set(theme_classic() +
                        theme(legend.position = "none", text = element_text(size = 16)))
 
 
-data <- generate_data(T = 2, amplitude = 20, sensor_sd = 1.7) %>%
-    t() %>%
-    data.frame()
+data <- generate_data(T = 2, amplitude = 20, sensor_sd = 1.7, as_df = TRUE)
 
 
 f <- function(x, t, Time, A, sd, N) {
     rnorm(n = N, mean =  x[, t-1] + A * sin(2*pi*(t-1)/Time), sd = sd)
 }
 
-params <- list(sdx = 1.2, sdy = 4.0, A = 2.0, fun_x = f)
+params <- list(sd_x = 1.9, sd_y = 4.0, A = 2.0, fun_x = f)
 
 out <- particle_filter(data = data, N = 100, Time = length(data$observations),
                        x_init = 0, sdx_init = 0.5,
