@@ -30,8 +30,10 @@ f_2 <- function(x, t, Time, A, sd_active, sd_passive, N) {
 # }
 
 
-params <- list(sd_x = 1.1, sd_y = 4.0, A = 2.0, funcs = list(f_1),
-               N = 300, x_init = 0, sd_x_init = 0.5)
+params <- list(sd_y = 4.0, A = 2.0,
+               fun = f_1,
+               sd_x = 1.1, N = 300,
+               x_init = 0, sd_x_init = 0.5)
 
 out <- particle_filter(data = data, Time = length(data$observations),
                        params, resample_particles = TRUE, rs_thresh = 0.5)

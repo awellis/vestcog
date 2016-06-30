@@ -23,10 +23,10 @@ particle_filter <- function(data, Time, params, resample_particles = TRUE, rs_th
 
     # unpack parameters
     sd_c <- params$sd_c
+    # sd_x <- params$sd_x
     sd_x <- params$sd_x
     sd_y <- params$sd_y
-    fun_1 <- params$funcs[[1]]
-    # fun_2 <- params$funcs[[2]]
+    fun <- params$fun
 
     # fun_c <- params$fun_c
     A <- params$A
@@ -49,7 +49,7 @@ particle_filter <- function(data, Time, params, resample_particles = TRUE, rs_th
 
     for (t in seq(2, Time)) {
         # predict 1 step ahead using process model as proposal distribution
-        x[, t] <- fun_1(x, t, Time, A, sd = sd_x, N)
+        x[, t] <- fun(x, t, Time, A, sd = sd_x, N)
 
         if (!is.na(data$observations[t])) {
             weights[, t] <- update(data$observations[t], x[, t], sd_y)
