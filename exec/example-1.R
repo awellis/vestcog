@@ -1,9 +1,21 @@
 library(ggplot2)
 
-ggplot2::theme_set(theme_classic() +
-                       ggplot2::theme(axis.line.x = element_line(colour = 'black', size = 0.5, linetype = 'solid'),
-                                      axis.line.y = element_line(colour = 'black', size = 0.5, linetype = 'solid')) +
-                       theme(legend.position = "none", text = element_text(size = 16)))
+ggplot2::theme_set(
+    theme_classic() +
+        ggplot2::theme(
+            axis.line.x = element_line(
+                colour = 'black',
+                size = 0.5,
+                linetype = 'solid'
+            ),
+            axis.line.y = element_line(
+                colour = 'black',
+                size = 0.5,
+                linetype = 'solid'
+            )
+        ) +
+        theme(legend.position = "none", text = element_text(size = 16))
+)
 
 
 data <- generate_data(T = 2, amplitude = 20, sensor_sd = 1.7, as_df = TRUE)
@@ -11,11 +23,17 @@ data <- generate_data(T = 2, amplitude = 20, sensor_sd = 1.7, as_df = TRUE)
 
 
 fun_control <- function(A, t, Time, N) {
-    rnorm(n = N, mean = A*sin(2*pi*(t-1)/Time), sd = 0.1)
+    rnorm(n = N,
+          mean = A * sin(2 * pi * (t - 1) / Time),
+          sd = 0.1)
 }
 
 fun_process <- function(x, t, Time, A, sd, N) {
-    rnorm(n = N, mean =  x[, t-1] + fun_control(A, t, Time, N), sd = sd)
+    rnorm(
+        n = N,
+        mean =  x[, t - 1] + fun_control(A, t, Time, N),
+        sd = sd
+    )
 }
 
 # fun_process <- function(x, t, Time, A, sd, N) {
