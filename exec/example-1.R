@@ -9,19 +9,28 @@ ggplot2::theme_set(theme_classic() +
 data <- generate_data(T = 2, amplitude = 20, sensor_sd = 1.7, as_df = TRUE)
 
 
-f_1 <- function(x, t, Time, A, sd, N) {
-    rnorm(n = N, mean =  x[, t-1] + A*sin(2*pi*(t-1)/Time), sd = sd)
+
+fun_control <- function(A, t, Time, N) {
+    rnorm(n = N, mean = A*sin(2*pi*(t-1)/Time), sd = 0.1)
 }
 
-f_0 <- function(x, t, Time, A, sd, N) {
-    rnorm(n = N, mean =  x[, t-1], sd = sd)
+fun_process <- function(x, t, Time, A, sd, N) {
+    rnorm(n = N, mean =  x[, t-1] + fun_control(A, t, Time, N), sd = sd)
 }
 
-f_2 <- function(x, t, Time, A, sd_active, sd_passive, N) {
-    passive <- rnorm(n = N, mean =  passive[, t-1], sd = sd_passive)
-    active <- rnorm(n = N, mean =  active[, t-1], sd = sd_active)
-    velocity <- passive + passive
-}
+# fun_process <- function(x, t, Time, A, sd, N) {
+#     rnorm(n = N, mean =  x[, t-1] + A*sin(2*pi*(t-1)/Time), sd = sd)
+# }
+
+# f_0 <- function(x, t, Time, A, sd, N) {
+#     rnorm(n = N, mean =  x[, t-1], sd = sd)
+# }
+#
+# f_2 <- function(x, t, Time, A, sd_active, sd_passive, N) {
+#     passive <- rnorm(n = N, mean =  passive[, t-1], sd = sd_passive)
+#     active <- rnorm(n = N, mean =  active[, t-1], sd = sd_active)
+#     velocity <- passive + passive
+# }
 
 
 # f2 <- function(x, t, Time, A, sd, N) {
@@ -31,8 +40,8 @@ f_2 <- function(x, t, Time, A, sd_active, sd_passive, N) {
 
 
 params <- list(sd_y = 4.0, A = 2.0,
-               fun = f_1,
-               sd_x = 1.1, N = 300,
+               fun = fun_process,
+               sd_x = 1.1, N = 1000,
                x_init = 0, sd_x_init = 0.5)
 
 out <- particle_filter(data = data, Time = length(data$observations),
@@ -41,3 +50,4 @@ out <- particle_filter(data = data, Time = length(data$observations),
 plot_filtering_estimates(out, data = data)
 
 print(out$logliksum)
+print(out$ll)
