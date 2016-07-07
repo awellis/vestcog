@@ -53,12 +53,6 @@ particle_filter <- function(data, params, resample_particles = TRUE, rs_thresh =
 
     for (t in seq(2, Time)) {
 
-        if (resample_particles) {
-            if (neff(weights[, t]) < rs_thresh * N) {
-                x[, t] <- resample(x[, t], weights[, t])
-            }
-        }
-
         # predict 1 step ahead using process model as proposal distribution
         x[, t] <- fun(x, t, Time, A, sd = sd_x, N)
 
@@ -66,6 +60,12 @@ particle_filter <- function(data, params, resample_particles = TRUE, rs_thresh =
             weights[, t] <- update(data$observations[t], x[, t], sd_y)
         } else {
             weights[, t] <- 1/N
+        }
+
+        if (resample_particles) {
+            if (neff(weights[, t]) < rs_thresh * N) {
+                x[, t] <- resample(x[, t], weights[, t])
+            }
         }
 
         loglik[t] <- log(sum(weights[, t])) - log(N)
