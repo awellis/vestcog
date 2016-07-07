@@ -39,3 +39,27 @@ generate_data <- function(T = 2, dt = 0.1, amplitude = 20, sensor_sd = 1.7,
 
     return(out)
 }
+
+#' @export
+plot_trajectories <- function(data) {
+
+    color_palette <- viridis::plasma(n = 9)
+
+    set.seed(44234)
+    data <- data %>% gather(key = "key", value = "value", -time)
+
+    g <- ggplot(data = data, aes(x = time, y = value, color = key)) +
+        geom_line(data = filter(data,
+                                key %in% c("acceleration",
+                                           "velocity",
+                                           "position")),
+                  size = 2) +
+        geom_point(data = filter(data, key == "observations"),
+                   size = 3, shape = 15, color = "black") +
+        xlab("Time") + ylab("Angular velocity [deg]") +
+        # labs(title = "Natural head motion") +
+        # scale_colour_brewer(palette = "Set1")
+        scale_colour_manual(values = sample(color_palette)) +
+        theme(legend.title = element_blank())
+    print(g)
+}
