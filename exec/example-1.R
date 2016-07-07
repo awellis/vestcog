@@ -62,8 +62,10 @@ params <- list(sd_y = 4.0, A = 2.0,
                sd_x = 1.1, N = 1000,
                x_init = 0, sd_x_init = 0.5)
 
-out <- particle_filter(data = data, Time = length(data$observations),
-                       params, resample_particles = TRUE, rs_thresh = 0.5)
+out <- particle_filter(data = data,
+                       params = params,
+                       resample_particles = FALSE,
+                       rs_thresh = 0.5)
 
 plot_filtering_estimates(out, data = data)
 

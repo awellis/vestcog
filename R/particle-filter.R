@@ -1,5 +1,6 @@
 #' @import ggplot2
 #' @import dplyr
+#' @import tidyr
 #' @importFrom viridis plasma
 
 #' @export
@@ -19,7 +20,7 @@ resample <- function(samples, weights) {
 
 
 #' @export
-particle_filter <- function(data, Time, params, resample_particles = TRUE, rs_thresh = 0.5) {
+particle_filter <- function(data, params, resample_particles = TRUE, rs_thresh = 0.5) {
 
     # unpack parameters
     sd_c <- params$sd_c
@@ -31,6 +32,7 @@ particle_filter <- function(data, Time, params, resample_particles = TRUE, rs_th
     # fun_c <- params$fun_c
     A <- params$A
     N <- params$N
+    Time = length(data$observations)
     x_init <- params$x_init
     sd_x_init <- params$sd_x_init
 
@@ -90,7 +92,6 @@ particle_filter <- function(data, Time, params, resample_particles = TRUE, rs_th
 #' @export
 plot_filtering_estimates <- function(object, data, predict = FALSE) {
 
-    color_palette <- viridis::plasma(n = 9)
     color_palette <- viridis::plasma(n = 9)
 
     df <- with(object, {
