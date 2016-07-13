@@ -93,6 +93,22 @@ particle_filter <- function(data, params, resample_particles = TRUE, rs_thresh =
 plot_filtering_estimates <- function(object, data, predict = FALSE) {
 
     color_palette <- viridis::plasma(n = 9)
+    ggplot2::theme_set(
+        theme_classic() +
+            ggplot2::theme(
+                axis.line.x = element_line(
+                    colour = 'black',
+                    size = 0.5,
+                    linetype = 'solid'
+                ),
+                axis.line.y = element_line(
+                    colour = 'black',
+                    size = 0.5,
+                    linetype = 'solid'
+                )
+            ) +
+            theme(legend.position = "none", text = element_text(size = 16))
+    )
 
     df <- with(object, {
         dplyr::data_frame(t = seq(1, Time),
@@ -106,6 +122,7 @@ plot_filtering_estimates <- function(object, data, predict = FALSE) {
     })
 
     p <- ggplot2::ggplot(data = df, aes(x = t)) +
+        ggplot2::geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.4) +
         ggplot2::geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.1,
                              fill = color_palette[2]) +
         ggplot2::geom_line(aes(y = x_true), colour = color_palette[7], alpha = 0.9,
