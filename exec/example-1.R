@@ -19,7 +19,7 @@ ggplot2::theme_set(
 
 
 data <- generate_data(T = 2, amplitude = 20, sensor_sd = 1.7, as_df = TRUE)
-
+plot_trajectories(data)
 
 
 fun_control <- function(A, t, Time, N) {
@@ -70,4 +70,6 @@ out <- particle_filter(data = data,
 plot_filtering_estimates(out, data = data)
 
 print(out$logliksum)
-print(out$ll)
+# print(out$ll)
+
+out$loglik %>% plot()

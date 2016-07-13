@@ -44,22 +44,45 @@ generate_data <- function(T = 2, dt = 0.1, amplitude = 20, sensor_sd = 1.7,
 plot_trajectories <- function(data) {
 
     color_palette <- viridis::plasma(n = 9)
+    ggplot2::theme_set(
+        theme_classic() +
+            ggplot2::theme(
+                axis.line.x = element_line(
+                    colour = 'black',
+                    size = 0.5,
+                    linetype = 'solid'
+                ),
+                axis.line.y = element_line(
+                    colour = 'black',
+                    size = 0.5,
+                    linetype = 'solid'
+                )
+            ) +
+            theme(legend.position = "none", text = element_text(size = 16))
+    )
 
     set.seed(44234)
     data <- data %>% gather(key = "key", value = "value", -time)
 
-    g <- ggplot(data = data, aes(x = time, y = value, color = key)) +
+    g <- ggplot(data = data, aes(x = time, y = value, linetype = key, color = key)) +
         geom_line(data = filter(data,
                                 key %in% c("acceleration",
                                            "velocity",
                                            "position")),
                   size = 2) +
         geom_point(data = filter(data, key == "observations"),
-                   size = 3, shape = 15, color = "black") +
+                   size = 3, shape = 15, color = "black", alpha = 0.5) +
+        geom_line(data = filter(data, key == "observations"),
+                  colour = "black", size = 1, alpha = 0.2, linetype = "dotted") +
+
+        geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.4) +
+
         xlab("Time") + ylab("Angular velocity [deg]") +
+
         # labs(title = "Natural head motion") +
         # scale_colour_brewer(palette = "Set1")
-        scale_colour_manual(values = sample(color_palette)) +
+        scale_colour_manual(values =
+                                c(color_palette[7], color_palette[2], color_palette[1])) + #sample(color_palette)) +
         theme(legend.title = element_blank())
     print(g)
 }

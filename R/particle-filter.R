@@ -106,6 +106,7 @@ plot_filtering_estimates <- function(object, data, predict = FALSE) {
     })
 
     p <- ggplot2::ggplot(data = df, aes(x = t)) +
+        ggplot2::geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.4) +
         ggplot2::geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.1,
                              fill = color_palette[2]) +
         ggplot2::geom_line(aes(y = x_true), colour = color_palette[7], alpha = 0.9,
