@@ -131,7 +131,7 @@ plot_filtering_estimates <- function(object, data, predict = FALSE) {
         ggplot2::geom_line(aes(y = median), colour = color_palette[1], size = 1.4, alpha = 0.6) +
 
         ggplot2::geom_point(aes(y = observations), colour = "black",
-                            size = 3, shape = 15, alpha = 0.5) +
+                            size = 5, shape = 15, alpha = 0.5) +
         ggplot2::geom_line(aes(y = observations), colour = "black", size = 1,
                            alpha = 0.2, linetype = "dotted") +
         ggplot2::scale_x_continuous(limits = c(1, 20), breaks = c(0, 5, 10, 15, 20),
