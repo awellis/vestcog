@@ -1,21 +1,21 @@
 library(ggplot2)
 
-ggplot2::theme_set(
-    theme_classic() +
-        ggplot2::theme(
-            axis.line.x = element_line(
-                colour = 'black',
-                size = 0.5,
-                linetype = 'solid'
-            ),
-            axis.line.y = element_line(
-                colour = 'black',
-                size = 0.5,
-                linetype = 'solid'
-            )
-        ) +
-        theme(legend.position = "none", text = element_text(size = 16))
-)
+# ggplot2::theme_set(
+#     theme_classic() +
+#         ggplot2::theme(
+#             axis.line.x = element_line(
+#                 colour = 'black',
+#                 size = 0.5,
+#                 linetype = 'solid'
+#             ),
+#             axis.line.y = element_line(
+#                 colour = 'black',
+#                 size = 0.5,
+#                 linetype = 'solid'
+#             )
+#         ) +
+#         theme(legend.position = "none", text = element_text(size = 16))
+# )
 
 set.seed(8529573L)
 data_offline <- generate_data(T = 2, amplitude = 0, sensor_sd = 1.7, as_df = TRUE)

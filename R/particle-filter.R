@@ -136,7 +136,9 @@ plot_filtering_estimates <- function(object, data, predict = FALSE) {
                            alpha = 0.2, linetype = "dotted") +
         ggplot2::scale_x_continuous(limits = c(1, 20), breaks = c(0, 5, 10, 15, 20),
                                     labels = c("0", "0.5", "1", "1.5", "2")) +
-        ggplot2::ylab(expression(paste("Latent state: ", omega))) + xlab("Time [sec]")
+        ggplot2::ylab(expression(paste("Latent state: ", omega))) +
+
+        xlab("Time [sec]")
 
     if (predict) {
         p <- p +
