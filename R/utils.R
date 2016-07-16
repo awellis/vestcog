@@ -42,7 +42,7 @@ generate_data <- function(T = 2, dt = 0.1, amplitude = 20, sensor_sd = 1.7,
 }
 
 #' @export
-plot_trajectories <- function(data, vel_only = FALSE) {
+plot_trajectories <- function(data, velocity_only = FALSE) {
 
     color_palette <- viridis::plasma(n = 9)
     ggplot2::theme_set(
@@ -65,7 +65,7 @@ plot_trajectories <- function(data, vel_only = FALSE) {
     set.seed(44234)
     data <- data %>% gather(key = "key", value = "value", -time)
 
-    if (vel_only) {
+    if (velocity_only) {
         keylist <- "velocity"
         } else {
         keylist <- c("acceleration", "velocity", "position")
