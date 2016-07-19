@@ -107,7 +107,7 @@ plot_filtering_estimates <- function(object, data, predict = FALSE) {
                     linetype = 'solid'
                 )
             ) +
-            theme(legend.position = "none", text = element_text(size = 16))
+            theme(legend.position = "none", text = element_text(size = 24))
     )
 
     df <- with(object, {
@@ -122,18 +122,19 @@ plot_filtering_estimates <- function(object, data, predict = FALSE) {
     })
 
     p <- ggplot2::ggplot(data = df, aes(x = t)) +
-        ggplot2::geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.4) +
+        ggplot2::geom_hline(yintercept = 0, linetype = "solid", alpha = 0.4) +
         ggplot2::geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.1,
                              fill = color_palette[2]) +
         ggplot2::geom_line(aes(y = x_true), colour = color_palette[7], alpha = 0.9,
-                           linetype = "dashed", size = 1.2) +
+                           linetype = "dashed", size = 2) +
         # geom_line(aes(y = mean), colour = color_palette[6], size = 1.4) +
-        ggplot2::geom_line(aes(y = median), colour = color_palette[1], size = 1.4, alpha = 0.6) +
+        ggplot2::geom_line(aes(y = median), colour = color_palette[1],
+                           linetype = "solid", size = 2, alpha = 0.6) +
 
         ggplot2::geom_point(aes(y = observations), colour = "black",
                             size = 5, shape = 15, alpha = 0.5) +
-        ggplot2::geom_line(aes(y = observations), colour = "black", size = 1,
-                           alpha = 0.2, linetype = "dotted") +
+        # ggplot2::geom_line(aes(y = observations), colour = "black", size = 2,
+        #                    alpha = 0.2, linetype = "dotted") +
         ggplot2::scale_x_continuous(limits = c(1, 20), breaks = c(0, 5, 10, 15, 20),
                                     labels = c("0", "0.5", "1", "1.5", "2")) +
         ggplot2::ylab(expression(paste("Latent state: ", omega))) +
