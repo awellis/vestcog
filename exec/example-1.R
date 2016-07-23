@@ -18,9 +18,8 @@ ggplot2::theme_set(
 )
 
 
-data <- generate_data(T = 2, amplitude = 20, sensor_sd = 1.7, as_df = TRUE)
-plot_trajectories(data)
-
+data_motion <- generate_data(T = 2, amplitude = 20, sensor_sd = 1.7, as_df = TRUE)
+plot_trajectories(data_motion)
 
 fun_control <- function(A, t, Time, N) {
     rnorm(n = N,
@@ -62,14 +61,14 @@ params <- list(sd_y = 4.0, A = 2.0,
                sd_x = 1.1, N = 1000,
                x_init = 0, sd_x_init = 0.5)
 
-out <- particle_filter(data = data,
+out <- particle_filter(data = data_motion,
                        params = params,
                        resample_particles = FALSE,
                        rs_thresh = 0.5)
 
-plot_filtering_estimates(out, data = data)
+plot_filtering_estimates(out, data = data_motion)
 
 print(out$logliksum)
 # print(out$ll)
 
-out$loglik %>% plot()
+# out$loglik %>% plot()

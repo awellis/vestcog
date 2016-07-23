@@ -124,17 +124,20 @@ plot_filtering_estimates <- function(object, data, predict = FALSE) {
     p <- ggplot2::ggplot(data = df, aes(x = t)) +
         ggplot2::geom_hline(yintercept = 0, linetype = "solid", alpha = 0.4) +
         ggplot2::geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.1,
-                             fill = color_palette[2]) +
-        ggplot2::geom_line(aes(y = x_true), colour = color_palette[7], alpha = 0.9,
+                             fill = "steelblue") +
+        ggplot2::geom_line(aes(y = x_true), colour = color_palette[5], alpha = 0.9,
                            linetype = "dashed", size = 2) +
         # geom_line(aes(y = mean), colour = color_palette[6], size = 1.4) +
-        ggplot2::geom_line(aes(y = median), colour = color_palette[1],
-                           linetype = "solid", size = 2, alpha = 0.6) +
 
-        ggplot2::geom_point(aes(y = observations), colour = "black",
-                            size = 5, shape = 15, alpha = 0.5) +
-        # ggplot2::geom_line(aes(y = observations), colour = "black", size = 2,
-        #                    alpha = 0.2, linetype = "dotted") +
+
+        ggplot2::geom_line(aes(y = observations), colour = "darkgrey", size = 1.5,
+                           linetype = "dotted") +
+
+        ggplot2::geom_point(aes(y = observations), alpha = 0.8, fill = "white", colour = "white", shape = 21, size = 6) +
+        ggplot2::geom_point(aes(y = observations), alpha = 0.8, fill = "white", colour = "grey40", shape = 21, size = 4) +
+        ggplot2::geom_line(aes(y = median), colour = "steelblue",
+                           linetype = "solid", size = 2, alpha = 1) +
+
         ggplot2::scale_x_continuous(limits = c(1, 20), breaks = c(0, 5, 10, 15, 20),
                                     labels = c("0", "0.5", "1", "1.5", "2")) +
         ggplot2::ylab(expression(paste("Latent state: ", omega))) +
