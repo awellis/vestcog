@@ -59,11 +59,11 @@ plot_trajectories <- function(data, velocity_only = FALSE) {
                     linetype = 'solid'
                 )
             ) +
-            theme(legend.position = "none", text = element_text(size = 16))
+            theme(legend.position = "none", text = element_text(size = 24))
     )
 
     set.seed(44234)
-    data <- data %>% gather(key = "key", value = "value", -time)
+    data <- data %>% tidyr::gather(key = "key", value = "value", -time)
 
     if (velocity_only) {
         keylist <- "velocity"
@@ -74,10 +74,18 @@ plot_trajectories <- function(data, velocity_only = FALSE) {
     g <- ggplot(data = data, aes(x = time, y = value, linetype = key, color = key)) +
         geom_line(data = filter(data, key %in% keylist),
                   size = 2) +
-        geom_point(data = filter(data, key == "observations"),
-                   size = 3, shape = 15, color = "black", alpha = 0.5) +
-        geom_line(data = filter(data, key == "observations"),
-                  colour = "black", size = 1, alpha = 0.2, linetype = "dotted") +
+
+        # geom_point(data = filter(data, key == "observations"),
+        #            size = 3, shape = 15, color = "black", alpha = 0.5) +
+        # geom_line(data = filter(data, key == "observations"),
+        #           colour = "black", size = 1, alpha = 0.2, linetype = "dotted") +
+        ggplot2::geom_point(aes(data = filter(data, key == "observations"),
+                                y = observations), alpha = 0.8, fill = "white", colour = "white", shape = 21, size = 6) +
+        ggplot2::geom_point(aes(data = filter(data, key == "observations"),
+                                y = observations), alpha = 0.8, fill = "white", colour = "grey40", shape = 21, size = 4) +
+        ggplot2::geom_line(aes(data = filter(data, key == "observations"),
+                               y = median), colour = "steelblue",
+                           linetype = "solid", size = 2, alpha = 1) +
 
         geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.4) +
 
