@@ -14,7 +14,7 @@ ggplot2::theme_set(
                 linetype = 'solid'
             )
         ) +
-        theme(legend.position = "none", text = element_text(size = 16))
+        theme(legend.position = "none", text = element_text(size = 28))
 )
 
 
