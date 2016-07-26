@@ -74,7 +74,7 @@ plot_trajectories <- function(data, velocity_only = FALSE) {
         keylist <- c("acceleration", "velocity", "position")
     }
 
-    ggplot(data = motion_data, aes(x = time, y = value, linetype = key)) +
+    ggplot(data = data, aes(x = time, y = value, linetype = key)) +
 
         geom_line(size = 2, alpha = 0.5) +
         geom_line(data = dplyr::filter(data, key == "velocity"),
