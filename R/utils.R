@@ -87,6 +87,7 @@ plot_trajectories <- function(data, velocity_only = FALSE) {
 
         geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.4) +
 
+
         xlab("Time [s]") + ylab("Angular velocity [deg]") +
 
         scale_shape_manual(name = "", guide = guide_legend(override.aes = list(
@@ -98,14 +99,31 @@ plot_trajectories <- function(data, velocity_only = FALSE) {
                               guide = guide_legend(override.aes = list(
                         alpha = c(0.5, 0.5, 0.5, 1.0)),
                         title = NULL))
-
-
-
-    print(g)
 }
 
 
 
 
+=======
+        geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.4) +
+
+        xlab("Time [s]") + ylab("Angular velocity [deg]")
+
+        # labs(title = "Natural head motion") +
+        # scale_colour_brewer(palette = "Set1")
+        # scale_colour_manual(values =
+        #                         c(color_palette[7], color_palette[2], color_palette[1])) + #sample(color_palette)) +\
+        # facet_grid(~ key) +
+        # theme(legend.title = element_blank()) +
+        # scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9"),
+        #                name="Experimental\nCondition",
+        #                labels=c("Control", "Treatment 1", "Treatment 2"))
+
+    print(g)
+}
+
+data_motion <- generate_data(T = 2, amplitude = 20, sensor_sd = 1.7, as_df = TRUE)
+plot_trajectories(data_motion)
+>>>>>>> 6073eefebe15f5565067a93d304a9b418da6371e
 
 
