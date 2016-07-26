@@ -61,7 +61,7 @@ plot_trajectories <- function(data, velocity_only = FALSE) {
                     linetype = 'solid'
                 )
             ) +
-            theme(legend.position = "right", text = element_text(size = 14))
+            theme(legend.position = "right", text = element_text(size = 24))
     )
 
     set.seed(44234)
@@ -74,24 +74,24 @@ plot_trajectories <- function(data, velocity_only = FALSE) {
         keylist <- c("acceleration", "velocity", "position")
     }
 
-    ggplot(data = data, aes(x = time, y = value, linetype = key)) +
+   g <- ggplot(data = data, aes(x = time, y = value, linetype = key)) +
 
         geom_line(size = 2, alpha = 0.5) +
         geom_line(data = dplyr::filter(data, key == "velocity"),
                   alpha = 1.0, size = 2, linetype = "solid") +
 
         geom_point(data = dplyr::filter(data, key == "observations"), alpha = 1.,
-                   fill = "white", colour = "white", shape = 21, size = 6) +
+                   fill = "white", colour = "white", shape = 21, size = 8) +
         geom_point(data = dplyr::filter(data, key == "observations"), alpha = 1.,
-                   fill = "white", colour = "black", shape = 21, size = 4) +
+                   fill = "white", colour = "black", shape = 21, size = 6) +
 
         geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.4) +
 
 
         xlab("Time [s]") + ylab("Angular velocity [deg]") +
 
-        scale_shape_manual(name = "", guide = guide_legend(override.aes = list(
-            values = c(NULL, 21, NULL, NULL)))) +
+        # scale_shape_manual(name = "", guide = guide_legend(override.aes = list(
+        #     values = c(NULL, 21, NULL, NULL)))) +
 
         scale_linetype_manual(values = c("twodash", "dashed",
                                          "dotted", "solid"),
@@ -99,5 +99,6 @@ plot_trajectories <- function(data, velocity_only = FALSE) {
                               guide = guide_legend(override.aes = list(
                         alpha = c(0.5, 0.5, 0.5, 1.0)),
                         title = NULL))
+   print(g)
 }
 
