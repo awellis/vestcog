@@ -75,8 +75,10 @@ plot_trajectories <- function(data, velocity_only = FALSE) {
 
     g <- ggplot(data = data, aes(x = time, y = value, color = key)) +
                                  # linetype = key)) +
+
         # geom_line(data = filter(data, key %in% keylist),
         #           size = 2) +
+
         geom_line(data = filter(data, key %in% "position"),
                   size = 2, linetype = "longdash", color = "black", alpha = 0.5) +
         geom_line(data = filter(data, key %in% "velocity"),
@@ -89,10 +91,13 @@ plot_trajectories <- function(data, velocity_only = FALSE) {
         # geom_line(data = filter(data, key == "observations"),
         #           colour = "black", size = 1, alpha = 0.2, linetype = "dotted") +
 
-        geom_line(data = filter(data, key == "observations"), colour = "black", linetype = "dashed", size = 1.5, alpha = 1) +
+        geom_line(data = filter(data, key == "observations"), colour = "black",
+                  linetype = "dashed", size = 1.5, alpha = 1) +
 
-        geom_point(data = filter(data, key == "observations"), alpha = 1., fill = "white", colour = "white", shape = 21, size = 6) +
-        geom_point(data = filter(data, key == "observations"), alpha = 1., fill = "white", colour = "black", shape = 21, size = 4) +
+        geom_point(data = filter(data, key == "observations"), alpha = 1.,
+                   fill = "white", colour = "white", shape = 21, size = 6) +
+        geom_point(data = filter(data, key == "observations"), alpha = 1.,
+                   fill = "white", colour = "black", shape = 21, size = 4) +
 
 
         # ggplot2::geom_point(aes(data = filter(data, key == "observations"),
@@ -104,15 +109,24 @@ plot_trajectories <- function(data, velocity_only = FALSE) {
         #                    linetype = "solid", size = 2, alpha = 1) +
 
 
-    geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.4) +
+        geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.4) +
 
-        xlab("Time [s]") + ylab("Angular velocity [deg]") +
+        xlab("Time [s]") + ylab("Angular velocity [deg]")
 
         # labs(title = "Natural head motion") +
         # scale_colour_brewer(palette = "Set1")
-        scale_colour_manual(values =
-                                c(color_palette[7], color_palette[2], color_palette[1])) + #sample(color_palette)) +\
+        # scale_colour_manual(values =
+        #                         c(color_palette[7], color_palette[2], color_palette[1])) + #sample(color_palette)) +\
         # facet_grid(~ key) +
-        theme(legend.title = element_blank())
+        # theme(legend.title = element_blank()) +
+        # scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9"),
+        #                name="Experimental\nCondition",
+        #                labels=c("Control", "Treatment 1", "Treatment 2"))
+
     print(g)
 }
+
+data_motion <- generate_data(T = 2, amplitude = 20, sensor_sd = 1.7, as_df = TRUE)
+plot_trajectories(data_motion)
+
+
