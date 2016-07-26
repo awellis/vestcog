@@ -61,11 +61,12 @@ plot_trajectories <- function(data, velocity_only = FALSE) {
                     linetype = 'solid'
                 )
             ) +
-            theme(legend.position = "none", text = element_text(size = 28))
+            theme(legend.position = "top", text = element_text(size = 28))
     )
 
     set.seed(44234)
     data <- data %>% tidyr::gather(key = "key", value = "value", -time)
+    data$key <- factor(data$key)
 
     if (velocity_only) {
         keylist <- "velocity"
@@ -73,46 +74,38 @@ plot_trajectories <- function(data, velocity_only = FALSE) {
         keylist <- c("acceleration", "velocity", "position")
     }
 
-    g <- ggplot(data = data, aes(x = time, y = value, color = key)) +
-                                 # linetype = key)) +
-        # geom_line(data = filter(data, key %in% keylist),
-        #           size = 2) +
-        geom_line(data = filter(data, key %in% "position"),
-                  size = 2, linetype = "longdash", color = "black", alpha = 0.5) +
-        geom_line(data = filter(data, key %in% "velocity"),
-                  size = 2, linetype = "solid", color = "black",  alpha = 1.0) +
-        geom_line(data = filter(data, key %in% "acceleration"),
-                  size = 2, linetype = "dotdash", color = "black",  alpha = 0.5) +
+    ggplot(data = motion_data, aes(x = time, y = value, linetype = key)) +
 
-        # geom_point(data = filter(data, key == "observations"),
-        #            size = 3, shape = 15, color = "black", alpha = 0.5) +
-        # geom_line(data = filter(data, key == "observations"),
-        #           colour = "black", size = 1, alpha = 0.2, linetype = "dotted") +
+        geom_line(size = 2, alpha = 0.5) +
+        geom_line(data = dplyr::filter(data, key == "velocity"),
+                  alpha = 1.0, size = 2, linetype = "solid") +
 
-        geom_line(data = filter(data, key == "observations"), colour = "black", linetype = "dashed", size = 1.5, alpha = 1) +
+        geom_point(data = dplyr::filter(data, key == "observations"), alpha = 1.,
+                   fill = "white", colour = "white", shape = 21, size = 6) +
+        geom_point(data = dplyr::filter(data, key == "observations"), alpha = 1.,
+                   fill = "white", colour = "black", shape = 21, size = 4) +
 
-        geom_point(data = filter(data, key == "observations"), alpha = 1., fill = "white", colour = "white", shape = 21, size = 6) +
-        geom_point(data = filter(data, key == "observations"), alpha = 1., fill = "white", colour = "black", shape = 21, size = 4) +
-
-
-        # ggplot2::geom_point(aes(data = filter(data, key == "observations"),
-        #                         y = observations), alpha = 0.8, fill = "white", colour = "white", shape = 21, size = 6) +
-        # ggplot2::geom_point(aes(data = filter(data, key == "observations"),
-        #                         y = observations), alpha = 0.8, fill = "white", colour = "grey40", shape = 21, size = 4) +
-        # ggplot2::geom_line(aes(data = filter(data, key == "observations"),
-        #                        y = median), colour = "steelblue",
-        #                    linetype = "solid", size = 2, alpha = 1) +
-
-
-    geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.4) +
+        geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.4) +
 
         xlab("Time [s]") + ylab("Angular velocity [deg]") +
 
-        # labs(title = "Natural head motion") +
-        # scale_colour_brewer(palette = "Set1")
-        scale_colour_manual(values =
-                                c(color_palette[7], color_palette[2], color_palette[1])) + #sample(color_palette)) +\
-        # facet_grid(~ key) +
-        theme(legend.title = element_blank())
+        scale_shape_manual(name = "", guide = guide_legend(override.aes = list(
+            values = c(NULL, 21, NULL, NULL)))) +
+
+        scale_linetype_manual(values = c("twodash", "dashed",
+                                         "dotted", "solid"),
+                              name = "", labels = c("acceleration", "observations", "position", "velocity"),
+                              guide = guide_legend(override.aes = list(
+                        alpha = c(0.5, 0.5, 0.5, 1.0)),
+                        title = NULL))
+
+
+
     print(g)
 }
+
+
+
+
+
+
