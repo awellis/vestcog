@@ -61,7 +61,7 @@ plot_trajectories <- function(data, velocity_only = FALSE) {
                     linetype = 'solid'
                 )
             ) +
-            theme(legend.position = "right", text = element_text(size = 28))
+            theme(legend.position = "right", text = element_text(size = 14))
     )
 
     set.seed(44234)
