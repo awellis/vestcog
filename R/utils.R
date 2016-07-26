@@ -97,11 +97,11 @@ plot_trajectories <- function(motion_data, facet = FALSE) {
             linetype = key
         )) +
 
-        geom_line(size = 2, alpha = 0.5) +
+        geom_line(size = 4, alpha = 0.5) +
         geom_line(
             data = dplyr::filter(data, key == "velocity"),
             alpha = 1.0,
-            size = 2,
+            size = 4,
             linetype = "solid"
         ) +
         geom_point(
@@ -110,7 +110,7 @@ plot_trajectories <- function(motion_data, facet = FALSE) {
             fill = "white",
             colour = "white",
             shape = 21,
-            size = 8
+            size = 12
         ) +
         geom_point(
             aes(y = observations),
@@ -118,7 +118,7 @@ plot_trajectories <- function(motion_data, facet = FALSE) {
             fill = "white",
             colour = "black",
             shape = 21,
-            size = 6
+            size = 10
         ) +
 
         geom_hline(yintercept = 0,
