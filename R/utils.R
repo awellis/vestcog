@@ -87,6 +87,7 @@ plot_trajectories <- function(data, velocity_only = FALSE) {
 
         geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.4) +
 
+
         xlab("Time [s]") + ylab("Angular velocity [deg]") +
 
         scale_shape_manual(name = "", guide = guide_legend(override.aes = list(
@@ -98,14 +99,4 @@ plot_trajectories <- function(data, velocity_only = FALSE) {
                               guide = guide_legend(override.aes = list(
                         alpha = c(0.5, 0.5, 0.5, 1.0)),
                         title = NULL))
-
-
-
-    print(g)
 }
-
-
-
-
-
-
