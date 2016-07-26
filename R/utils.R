@@ -89,9 +89,9 @@ plot_trajectories <- function(data, velocity_only = FALSE) {
         # geom_line(data = filter(data, key == "observations"),
         #           colour = "black", size = 1, alpha = 0.2, linetype = "dotted") +
 
-        geom_line(data = filter(data, key == "observations"), colour = "darkgrey", linetype = "solid", size = 1.5, alpha = 1) +
+        geom_line(data = filter(data, key == "observations"), colour = "black", linetype = "solid", size = 1.5, alpha = 1) +
         geom_point(data = filter(data, key == "observations"), alpha = 1., fill = "white", colour = "white", shape = 21, size = 6) +
-        geom_point(data = filter(data, key == "observations"), alpha = 1., fill = "white", colour = "grey40", shape = 21, size = 4) +
+        geom_point(data = filter(data, key == "observations"), alpha = 1., fill = "white", colour = "black", shape = 21, size = 4) +
 
 
         # ggplot2::geom_point(aes(data = filter(data, key == "observations"),
