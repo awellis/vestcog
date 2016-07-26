@@ -74,6 +74,7 @@ plot_trajectories <- function(motion_data, facet = FALSE) {
     set.seed(44234)
 
     data <- motion_data %>% tidyr::gather(
+
         key = "key",
         value = "value",
         -time,
