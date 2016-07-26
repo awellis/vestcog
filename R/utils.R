@@ -100,3 +100,4 @@ plot_trajectories <- function(data, velocity_only = FALSE) {
                         alpha = c(0.5, 0.5, 0.5, 1.0)),
                         title = NULL))
 }
+
