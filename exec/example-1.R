@@ -18,8 +18,8 @@ ggplot2::theme_set(
 )
 
 
-data_motion <- generate_data(T = 2, amplitude = 20, sensor_sd = 1.7, as_df = TRUE)
-plot_trajectories(data_motion)
+motion_data <- generate_data(T = 2, amplitude = 20, sensor_sd = 1.7, as_df = TRUE)
+plot_trajectories(motion_data, facet = TRUE)
 
 fun_control <- function(A, t, Time, N) {
     rnorm(n = N,

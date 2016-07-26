@@ -42,7 +42,108 @@ generate_data <- function(T = 2, dt = 0.1, amplitude = 20, sensor_sd = 1.7,
 }
 
 #' @export
-plot_trajectories <- function(data, velocity_only = FALSE) {
+plot_trajectories <- function(motion_data, facet = FALSE) {
+    color_palette <- c(
+        "#000000",
+        "#E69F00",
+        "#56B4E9",
+        "#009E73",
+        "#F0E442",
+        "#0072B2",
+        "#D55E00",
+        "#CC79A7"
+    )
+
+    ggplot2::theme_set(
+        theme_classic() +
+            ggplot2::theme(
+                axis.line.x = element_line(
+                    colour = 'black',
+                    size = 0.5,
+                    linetype = 'solid'
+                ),
+                axis.line.y = element_line(
+                    colour = 'black',
+                    size = 0.5,
+                    linetype = 'solid'
+                )
+            ) +
+            theme(legend.position = "right", text = element_text(size = 24))
+    )
+
+    set.seed(44234)
+
+    data <- motion_data %>% tidyr::gather(
+        key = "key",
+        value = "value",
+        -time,
+        -observations,
+        factor_key = TRUE
+    )
+
+    data <- data %>%
+        dplyr::mutate(observations = ifelse(key %in% c("acceleration", "position"),
+                                            NA, observations))
+
+    data$key <- ordered(data$key,
+                        levels = c("acceleration", "velocity", "position"))
+
+
+    g <-
+        ggplot(data = data, aes(
+            x = time,
+            y = value,
+            linetype = key
+        )) +
+
+        geom_line(size = 2, alpha = 0.5) +
+        geom_line(
+            data = dplyr::filter(data, key == "velocity"),
+            alpha = 1.0,
+            size = 2,
+            linetype = "solid"
+        ) +
+        geom_point(
+            aes(y = observations),
+            alpha = 1.,
+            fill = "white",
+            colour = "white",
+            shape = 21,
+            size = 8
+        ) +
+        geom_point(
+            aes(y = observations),
+            alpha = 1.,
+            fill = "white",
+            colour = "black",
+            shape = 21,
+            size = 6
+        ) +
+
+        geom_hline(yintercept = 0,
+                   linetype = "dashed",
+                   alpha = 0.4) +
+        xlab("Time [s]") + ylab("Angular velocity [deg]") +
+        # facet_grid(key ~ .) +
+        scale_linetype_manual(
+            values = c("dashed", "solid",
+                       "dotted"),
+            name = "",
+            labels = c("acceleration", "velocity", "position"),
+            guide = guide_legend(override.aes = list(
+                alpha = c(0.5, 1, 1.0),
+                title = NULL
+            ))
+        )
+
+    if (facet) {
+        g <- g + facet_grid(key ~ .) +
+             theme(legend.position = "none")
+    }
+    print(g)
+}
+
+plot_trajectories_old <- function(data, velocity_only = FALSE) {
 
     color_palette <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
                        "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
@@ -87,8 +188,11 @@ plot_trajectories <- function(data, velocity_only = FALSE) {
 
         geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.4) +
 
+       facet_grid(.~ key) +
 
         xlab("Time [s]") + ylab("Angular velocity [deg]") +
+
+       facet_grid(key ~ .) +
 
         # scale_shape_manual(name = "", guide = guide_legend(override.aes = list(
         #     values = c(NULL, 21, NULL, NULL)))) +
