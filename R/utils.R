@@ -42,7 +42,38 @@ generate_data <- function(T = 2, dt = 0.1, amplitude = 20, sensor_sd = 1.7,
 }
 
 #' @export
-plot_trajectories <- function(motion_data, facet = FALSE) {
+plot_trajectories <- function(motiondata) {
+    opar <- par()
+    par(cex.main = 1.5, mar = c(5, 6, 4, 5) + 0.1, mgp = c(3.5, 1, 0),
+        cex.lab = 1.5, font.lab = 2, cex.axis = 1.3, bty = "n", las = 1,
+        lwd = 5)
+
+    with(motiondata, {
+        plot(observations ~ time, type = 'n', pch = 21, bg = "grey80", cex = 3,
+             ylim = c(-20, 20), xlim = c(0, 2),
+             col = rgb(red = 0, green = 0, blue = 0, alpha = 0.2),
+             ylab = "Position [deg] ", xlab = "Time [s]")
+
+        lines(acceleration ~ time, lty = "dotted")
+        lines(velocity ~ time, lty = "solid")
+        lines(position ~ time, lty = "dashed")
+        points(time, observations,  col = "black", bg = 'white',
+               cex = 1.5, pch = 21)
+        # points(observations)
+    })
+    # text(0.5, 9, "Velocity", cex = 1.5, pos = 4)
+
+    legend(0.2, -9, legend = c("Acceleration", "Velocity",
+                               "Position", "Observations"),
+           pch = c(rep(NA, 3), 21), col = rep("black", 4),
+           bg = c(rep(NA, 3), "white"),
+           lwd = rep(2.3, 4), lty = c("dotted", "solid", "dashed", NA),
+           bty = "n", x.intersp = 0.5, cex = 1.5)
+    # par(opar)
+}
+
+#' @export
+plot_trajectories_2 <- function(motion_data, facet = FALSE) {
     color_palette <- c(
         "#000000",
         "#E69F00",
@@ -56,18 +87,18 @@ plot_trajectories <- function(motion_data, facet = FALSE) {
 
     ggplot2::theme_set(
         theme_classic() +
-            ggplot2::theme(
-                axis.line.x = element_line(
-                    colour = 'black',
-                    size = 0.5,
-                    linetype = 'solid'
-                ),
-                axis.line.y = element_line(
-                    colour = 'black',
-                    size = 0.5,
-                    linetype = 'solid'
-                )
-            ) +
+            # ggplot2::theme(
+            #     axis.line.x = element_line(
+            #         colour = 'black',
+            #         size = 0.5,
+            #         linetype = 'solid'
+            #     ),
+            #     axis.line.y = element_line(
+            #         colour = 'black',
+            #         size = 0.5,
+            #         linetype = 'solid'
+            #     )
+            # ) +
             theme(legend.position = "right", text = element_text(size = 24))
     )
 
@@ -90,12 +121,15 @@ plot_trajectories <- function(motion_data, facet = FALSE) {
                         levels = c("acceleration", "velocity", "position"))
 
 
-    g <-
-        ggplot(data = data, aes(
+    g <- ggplot(data = data, aes(
             x = time,
             y = value,
             linetype = key
         )) +
+
+        geom_hline(yintercept = 0,
+                   linetype = "dashed",
+                   alpha = 0.4) +
 
         geom_line(size = 4, alpha = 0.5) +
         geom_line(
@@ -121,11 +155,8 @@ plot_trajectories <- function(motion_data, facet = FALSE) {
             size = 10
         ) +
 
-        geom_hline(yintercept = 0,
-                   linetype = "dashed",
-                   alpha = 0.4) +
         xlab("Time [s]") + ylab("Angular velocity [deg]") +
-        # facet_grid(key ~ .) +
+
         scale_linetype_manual(
             values = c("dashed", "solid",
                        "dotted"),
@@ -141,69 +172,62 @@ plot_trajectories <- function(motion_data, facet = FALSE) {
         g <- g + facet_grid(key ~ .) +
              theme(legend.position = "none")
     }
-    print(g)
+    g
 }
 
-plot_trajectories_old <- function(data, velocity_only = FALSE) {
 
-    color_palette <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
-                       "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-    ggplot2::theme_set(
-        theme_classic() +
-            ggplot2::theme(
-                axis.line.x = element_line(
-                    colour = 'black',
-                    size = 0.5,
-                    linetype = 'solid'
+#' @export
+theme_publication <- function (base_size = 14, base_family = "") {
+        theme_bw(base_size = base_size, base_family = base_family) %+replace%
+            theme(
+                panel.border = element_blank(),
+                axis.line = element_line(colour = "black"),
+                panel.grid.major = element_blank(),
+                panel.grid.minor = element_blank(),
+                strip.background = element_rect(colour = "black",
+                                                size = 0.5),
+                legend.key = element_blank(),
+                # Tick labels
+                axis.text.x = element_text(
+                    size = rel(0.86),
+                    colour = "black",
+                    face = "bold"
                 ),
-                axis.line.y = element_line(
-                    colour = 'black',
-                    size = 0.5,
-                    linetype = 'solid'
+                axis.text.y = element_text(
+                    size = rel(0.86),
+                    colour = "black",
+                    face = "bold"
+                ),
+
+                # Axis
+                axis.title = element_text(
+                    size = rel(1),
+                    colour = "black",
+                    face = "bold"
+                ),
+                axis.line.x = element_line(colour = "black", size = 1),
+                axis.line.y = element_line(colour = "black", size = 1),
+                axis.ticks = element_line(colour = "black", size = 1),
+
+                # Main title
+                plot.title = element_text(
+                    size = rel(1),
+                    colour = "black" ,
+                    lineheight = 1.0,
+                    face = "bold"
+                ),
+
+                legend.position = "bottom",
+                legend.title = element_text(
+                    size = rel(0.7),
+                    face = "bold",
+                    colour = "black"
+                ),
+                legend.text = element_text(
+                    size = rel(0.7),
+                    face = "plain",
+                    colour = "black"
                 )
-            ) +
-            theme(legend.position = "right", text = element_text(size = 24))
-    )
-
-    set.seed(44234)
-    data <- data %>% tidyr::gather(key = "key", value = "value", -time)
-    data$key <- factor(data$key)
-
-    if (velocity_only) {
-        keylist <- "velocity"
-    } else {
-        keylist <- c("acceleration", "velocity", "position")
+            )
     }
-
-   g <- ggplot(data = data, aes(x = time, y = value, linetype = key)) +
-
-        geom_line(size = 2, alpha = 0.5) +
-        geom_line(data = dplyr::filter(data, key == "velocity"),
-                  alpha = 1.0, size = 2, linetype = "solid") +
-
-        geom_point(data = dplyr::filter(data, key == "observations"), alpha = 1.,
-                   fill = "white", colour = "white", shape = 21, size = 8) +
-        geom_point(data = dplyr::filter(data, key == "observations"), alpha = 1.,
-                   fill = "white", colour = "black", shape = 21, size = 6) +
-
-        geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.4) +
-
-       facet_grid(.~ key) +
-
-        xlab("Time [s]") + ylab("Angular velocity [deg]") +
-
-       facet_grid(key ~ .) +
-
-        # scale_shape_manual(name = "", guide = guide_legend(override.aes = list(
-        #     values = c(NULL, 21, NULL, NULL)))) +
-
-        scale_linetype_manual(values = c("twodash", "dashed",
-                                         "dotted", "solid"),
-                              name = "", labels = c("acceleration", "observations", "position", "velocity"),
-                              guide = guide_legend(override.aes = list(
-                        alpha = c(0.5, 0.5, 0.5, 1.0)),
-                        title = NULL))
-   print(g)
-}
-

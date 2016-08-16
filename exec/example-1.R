@@ -1,25 +1,25 @@
 library(ggplot2)
 
-ggplot2::theme_set(
-    theme_classic() +
-        ggplot2::theme(
-            axis.line.x = element_line(
-                colour = 'black',
-                size = 0.5,
-                linetype = 'solid'
-            ),
-            axis.line.y = element_line(
-                colour = 'black',
-                size = 0.5,
-                linetype = 'solid'
-            )
-        ) +
-        theme(legend.position = "none", text = element_text(size = 28))
-)
+# ggplot2::theme_set(
+#     theme_classic() +
+#         ggplot2::theme(
+#             axis.line.x = element_line(
+#                 colour = 'black',
+#                 size = 0.5,
+#                 linetype = 'solid'
+#             ),
+#             axis.line.y = element_line(
+#                 colour = 'black',
+#                 size = 0.5,
+#                 linetype = 'solid'
+#             )
+#         ) +
+#         theme(legend.position = "none", text = element_text(size = 28))
+# )
 
 
 motion_data <- generate_data(T = 2, amplitude = 20, sensor_sd = 1.7, as_df = TRUE)
-plot_trajectories(motion_data, facet = TRUE)
+plot_trajectories(motion_data, facet = FALSE)
 
 fun_control <- function(A, t, Time, N) {
     rnorm(n = N,
@@ -61,12 +61,12 @@ params <- list(sd_y = 4.0, A = 2.0,
                sd_x = 1.1, N = 1000,
                x_init = 0, sd_x_init = 0.5)
 
-out <- particle_filter(data = data_motion,
+out <- particle_filter(data = motion_data,
                        params = params,
                        resample_particles = FALSE,
                        rs_thresh = 0.5)
 
-plot_filtering_estimates(out, data = data_motion)
+plot_filtering_estimates(out, data = motion_data)
 
 print(out$logliksum)
 # print(out$ll)
