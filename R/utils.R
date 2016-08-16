@@ -58,8 +58,7 @@ plot_trajectories <- function(motiondata) {
         lines(velocity ~ time, lty = "solid")
         lines(position ~ time, lty = "dashed")
         points(time, observations,  col = "black", bg = 'white',
-               cex = 1.5, pch = 21)
-        # points(observations)
+               cex = 3, pch = 21, lwd = 3)
     })
     # text(0.5, 9, "Velocity", cex = 1.5, pos = 4)
 
