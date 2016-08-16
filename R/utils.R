@@ -44,9 +44,9 @@ generate_data <- function(T = 2, dt = 0.1, amplitude = 20, sensor_sd = 1.7,
 #' @export
 plot_trajectories <- function(motiondata) {
     opar <- par()
-    par(cex.main = 1.5, mar = c(5, 6, 4, 5) + 0.1, mgp = c(3.5, 1, 0),
-        cex.lab = 1.5, font.lab = 2, cex.axis = 1.3, bty = "n", las = 1,
-        lwd = 5)
+    par(cex.main = 1.5, mar = c(5, 6, 4, 5) + 0.1, mgp = c(3.0, 1, 0),
+        cex.lab = 1.5, font.lab = 2, cex.axis = 1.3, bty = "l", las = 1,
+        lwd = 3)
 
     with(motiondata, {
         plot(observations ~ time, type = 'n', pch = 21, bg = "grey80", cex = 3,
@@ -54,9 +54,9 @@ plot_trajectories <- function(motiondata) {
              col = rgb(red = 0, green = 0, blue = 0, alpha = 0.2),
              ylab = "Position [deg] ", xlab = "Time [s]")
 
-        lines(acceleration ~ time, lty = "dotted")
-        lines(velocity ~ time, lty = "solid")
-        lines(position ~ time, lty = "dashed")
+        lines(acceleration ~ time, lty = "dotted", lwd = 5)
+        lines(velocity ~ time, lty = "solid", lwd = 5)
+        lines(position ~ time, lty = "dashed", lwd = 5)
         points(time, observations,  col = "black", bg = 'white',
                cex = 3, pch = 21, lwd = 3)
     })
