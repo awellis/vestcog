@@ -90,15 +90,31 @@ particle_filter <- function(data, params, resample_particles = TRUE, rs_thresh =
 
 
 #' @export
-plot_filtering_estimates <- function(object, data, predict = FALSE) {
+plot_filtering_estimates <- function(object, data, predict = FALSE, bw = TRUE) {
 
     # color_palette <- viridis::plasma(n = 9)
     color_palette <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
                        "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+    if (bw) {
+        true_color <- "black"
+        estimate_color <- "grey80"
+        predict_color <- "grey50"
+    } else {
+        true_color <- color_palette[2]
+        estimate_color <- color_palette[6]
+        predict_color <- color_palette[8]
+    }
 
-    true_color <- color_palette[2]
-    estimate_color <- color_palette[6]
-    predict_color <- color_palette[8]
+
+    if (object$Time == 20) {
+        xend <- 20
+        xbreaks <- c(0, 5, 10, 15, 20)
+        xlabels = c("0", "0.5", "1", "1.5", "2")
+    } else {
+        xend <- 80
+        xbreaks <- seq(from = 0, to = 80, by = 10)
+        xlabels = as.character(seq(from = 0, to = 8, by = 1))
+    }
 
     ggplot2::theme_set(
         theme_classic() +
@@ -138,17 +154,18 @@ plot_filtering_estimates <- function(object, data, predict = FALSE) {
         # geom_line(aes(y = mean), colour = color_palette[6], size = 1.4) +
 
 
-        ggplot2::geom_line(aes(y = observations), colour = "darkgrey", size = 1.5,
-                           linetype = "dotted") +
+        # ggplot2::geom_line(aes(y = observations), colour = "darkgrey", size = 1.5,
+        #                    linetype = "dotted") +
 
-        ggplot2::geom_point(aes(y = observations), alpha = 1.0, fill = "grey80", colour = "black", shape = 21, size = 6) +
+        ggplot2::geom_point(aes(y = observations), alpha = 1.0, fill = "white", colour = "black", shape = 21, size = 6) +
         # ggplot2::geom_point(aes(y = observations), alpha = 0.8, fill = "white", colour = "grey40", shape = 21, size = 4) +
 
         ggplot2::geom_line(aes(y = median), colour = estimate_color,
                            linetype = "solid", size = 2, alpha = 1) +
-
-        ggplot2::scale_x_continuous(limits = c(1, 20), breaks = c(0, 5, 10, 15, 20),
-                                    labels = c("0", "0.5", "1", "1.5", "2")) +
+        # FIXME: change xlimits to length(data)
+        ggplot2::scale_x_continuous(limits = c(1, xend),
+                                    breaks = xbreaks,
+                                    labels = xlabels) +
         ggplot2::ylab(expression(paste("Latent state: ", omega))) +
 
         xlab("Time [sec]")

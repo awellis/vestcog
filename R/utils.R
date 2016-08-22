@@ -42,7 +42,12 @@ generate_data <- function(T = 2, dt = 0.1, amplitude = 20, sensor_sd = 1.7,
 }
 
 #' @export
-plot_trajectories <- function(motiondata) {
+plot_trajectories <- function(motiondata, dt = 0.1) {
+
+    xend <- length(motiondata$observations) * dt
+    ylim <- max(motiondata$observations)
+    # ylim <- max(motiondata$position)
+
     opar <- par()
     par(cex.main = 1.5, mar = c(5, 6, 4, 5) + 0.1, mgp = c(3.0, 1, 0),
         cex.lab = 1.5, font.lab = 2, cex.axis = 1.3, bty = "l", las = 1,
@@ -50,15 +55,15 @@ plot_trajectories <- function(motiondata) {
 
     with(motiondata, {
         plot(observations ~ time, type = 'n', pch = 21, bg = "grey80", cex = 3,
-             ylim = c(-20, 20), xlim = c(0, 2),
+             ylim = c(-ylim, ylim), xlim = c(0, xend),
              col = rgb(red = 0, green = 0, blue = 0, alpha = 0.2),
              ylab = "Position [deg] ", xlab = "Time [s]")
 
         lines(acceleration ~ time, lty = "dotted", lwd = 5)
         lines(velocity ~ time, lty = "solid", lwd = 5)
-        lines(position ~ time, lty = "dashed", lwd = 5)
+        # lines(position ~ time, lty = "dashed", lwd = 5)
         points(time, observations,  col = "black", bg = 'white',
-               cex = 3, pch = 21, lwd = 3)
+               cex = 2, pch = 21, lwd = 2)
     })
     # text(0.5, 9, "Velocity", cex = 1.5, pos = 4)
 
