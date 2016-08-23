@@ -90,15 +90,16 @@ particle_filter <- function(data, params, resample_particles = TRUE, rs_thresh =
 
 
 #' @export
-plot_filtering_estimates <- function(object, data, predict = FALSE, bw = TRUE) {
+plot_filtering_estimates <- function(object, data, predict = FALSE,
+                                     bw = TRUE) {
 
     # color_palette <- viridis::plasma(n = 9)
     color_palette <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
                        "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
     if (bw) {
-        true_color <- "black"
-        estimate_color <- "grey80"
-        predict_color <- "grey50"
+        true_color <- "grey40"
+        estimate_color <- "grey70"
+        predict_color <- "grey60"
     } else {
         true_color <- color_palette[2]
         estimate_color <- color_palette[6]
@@ -135,10 +136,10 @@ plot_filtering_estimates <- function(object, data, predict = FALSE, bw = TRUE) {
 
     df <- with(object, {
         dplyr::data_frame(t = seq(1, Time),
-                          mean = x_means,
-                          median = x_medians,
-                          lower = x_quantiles[1, ],
-                          upper = x_quantiles[2, ],
+                          xmean = x_means,
+                          xmedian = x_medians,
+                          xlower = x_quantiles[1, ],
+                          xupper = x_quantiles[2, ],
                           x_true = data$velocity,
                           observations = data$observations,
                           loglik = loglik)
@@ -146,10 +147,10 @@ plot_filtering_estimates <- function(object, data, predict = FALSE, bw = TRUE) {
 
     p <- ggplot2::ggplot(data = df, aes(x = t)) +
         ggplot2::geom_hline(yintercept = 0, linetype = "solid", alpha = 0.4) +
-        ggplot2::geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.1,
+        ggplot2::geom_ribbon(aes(ymin = xlower, ymax = xupper), alpha = 0.1,
                              fill = estimate_color) +
 
-        ggplot2::geom_line(aes(y = x_true), colour = true_color, alpha = 0.9,
+        ggplot2::geom_line(aes(y = x_true), colour = true_color,
                            linetype = "dashed", size = 2) +
         # geom_line(aes(y = mean), colour = color_palette[6], size = 1.4) +
 
@@ -157,25 +158,26 @@ plot_filtering_estimates <- function(object, data, predict = FALSE, bw = TRUE) {
         # ggplot2::geom_line(aes(y = observations), colour = "darkgrey", size = 1.5,
         #                    linetype = "dotted") +
 
-        ggplot2::geom_point(aes(y = observations), alpha = 1.0, fill = "white", colour = "black", shape = 21, size = 6) +
+        ggplot2::geom_point(aes(y = observations), alpha = 1.0, fill = "white",
+                            colour = "black", shape = 21, size = 6) +
         # ggplot2::geom_point(aes(y = observations), alpha = 0.8, fill = "white", colour = "grey40", shape = 21, size = 4) +
 
-        ggplot2::geom_line(aes(y = median), colour = estimate_color,
+        ggplot2::geom_line(aes(y = xmean), colour = "black",
                            linetype = "solid", size = 2, alpha = 1) +
-        # FIXME: change xlimits to length(data)
+
         ggplot2::scale_x_continuous(limits = c(1, xend),
                                     breaks = xbreaks,
                                     labels = xlabels) +
-        ggplot2::ylab(expression(paste("Latent state: ", omega))) +
-
-        xlab("Time [sec]")
+        # ggplot2::ylab(expression(paste("Latent state: ", omega))) +
+        ggplot2::ylab(expression(paste("Angular velocity estimate [deg/s]"))) +
+        ggplot2::xlab("Time [sec]")
 
     if (predict) {
         p <- p +
-            ggplot2::geom_vline(xintercept = 10, linetype = "dashed",
+            ggplot2::geom_vline(xintercept = c(10, 15), linetype = "dashed",
                                 color = predict_color, size = 1.5, alpha = 0.6) +
-            ggplot2::geom_ribbon(data = filter(df, t > 9),
-                                 aes(ymin = lower, ymax = upper), alpha = 0.4,
+            ggplot2::geom_ribbon(data = dplyr::filter(df, t > 9, t < 16),
+                                 aes(ymin = xlower, ymax = xupper), alpha = 0.4,
                                  fill = predict_color)
     }
     print(p)
