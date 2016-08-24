@@ -191,7 +191,7 @@ plot_filtering_estimates <- function(object, data, predict = FALSE,
                                  aes(ymin = xlower, ymax = xupper), alpha = 0.4,
                                  fill = predict_color)
     }
-    print(p)
+    p
 }
 
 
