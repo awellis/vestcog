@@ -66,6 +66,9 @@ particle_filter <- function(data, params, resample_particles = TRUE, rs_thresh =
             weights[, t] <- 1/N
         }
 
+        loglik[t] <- log(sum(weights[, t])) - log(N)
+        ll <- ll + log(sum(weights[, t])) - log(N)
+
         weights[, t] <- normalize(weights[, t])
         n_eff[t] <- neff(weights[, t])
 
@@ -75,9 +78,6 @@ particle_filter <- function(data, params, resample_particles = TRUE, rs_thresh =
                 resampled[t] <- TRUE
             } else resampled[t] <- FALSE
         } else resampled[t] <- FALSE
-
-        loglik[t] <- log(sum(weights[, t])) - log(N)
-        ll <- ll + log(sum(weights[, t])) - log(N)
     }
 
     logliksum <- sum(loglik)
