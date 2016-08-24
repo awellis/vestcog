@@ -39,6 +39,8 @@ particle_filter <- function(data, params, resample_particles = TRUE, rs_thresh =
     # initialize variables
     x <- matrix(rep(0, N*Time), nrow = N, ncol = Time)  #matrix(nrow =  N, ncol = Time)
     weights <- matrix(rep(0, N*Time), nrow = N, ncol = Time) #matrix(nrow =  N, ncol = Time)
+    n_eff <- rep(0, Time)
+    resampled <- logical(length = Time)
     loglik <- rep(0, Time)
     ll <- 0
 
@@ -49,6 +51,8 @@ particle_filter <- function(data, params, resample_particles = TRUE, rs_thresh =
     ll <- ll + log(sum(weights[, 1])) - log(N)
 
     weights[, 1] <- normalize(weights[, 1])
+    n_eff[1] <- neff(weights[, 1])
+
     # x[, 1] <- resample(x[, 1], weights[, 1])
 
     for (t in seq(2, Time)) {
@@ -62,11 +66,15 @@ particle_filter <- function(data, params, resample_particles = TRUE, rs_thresh =
             weights[, t] <- 1/N
         }
 
+        weights[, t] <- normalize(weights[, t])
+        n_eff[t] <- neff(weights[, t])
+
         if (resample_particles) {
-            if (neff(weights[, t]) < rs_thresh * N) {
+            if (n_eff[t] < rs_thresh * N) {
                 x[, t] <- resample(x[, t], weights[, t])
-            }
-        }
+                resampled[t] <- TRUE
+            } else resampled[t] <- FALSE
+        } else resampled[t] <- FALSE
 
         loglik[t] <- log(sum(weights[, t])) - log(N)
         ll <- ll + log(sum(weights[, t])) - log(N)
@@ -78,6 +86,7 @@ particle_filter <- function(data, params, resample_particles = TRUE, rs_thresh =
 
     out <- list(x = x, weights = weights, loglik = loglik,
                 logliksum = logliksum, ll = ll,
+                ess = round(n_eff, digits = 0), resample = resampled,
                 x_means = apply(x, 2, mean),
                 x_medians = apply(x, 2, median),
                 x_quantiles = apply(x, 2,
@@ -98,8 +107,8 @@ plot_filtering_estimates <- function(object, data, predict = FALSE,
                        "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
     if (bw) {
         true_color <- "grey40"
-        estimate_color <- "grey70"
-        predict_color <- "grey60"
+        estimate_color <- "grey60"
+        predict_color <- "grey50"
     } else {
         true_color <- color_palette[2]
         estimate_color <- color_palette[6]
@@ -142,7 +151,9 @@ plot_filtering_estimates <- function(object, data, predict = FALSE,
                           xupper = x_quantiles[2, ],
                           x_true = data$velocity,
                           observations = data$observations,
-                          loglik = loglik)
+                          loglik = loglik,
+                          ess = ess,
+                          resample = resample)
     })
 
     p <- ggplot2::ggplot(data = df, aes(x = t)) +

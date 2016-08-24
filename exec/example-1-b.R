@@ -20,7 +20,7 @@ library(ggplot2)
 set.seed(8529573L)
 data_offline <- generate_data(T = 2, amplitude = 0, sensor_sd = 1.7, as_df = TRUE)
 
-plot_trajectories(data = data_offline)
+plot_trajectories(motiondata = data_offline)
 
 
 params <- list(sd_y = 4.0, A = -10.0,
