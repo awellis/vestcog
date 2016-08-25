@@ -22,52 +22,12 @@ Mode <- function(v) {
     uniqv[which.max(tabulate(match(v, uniqv)))]
 }
 
-generate_data <- function(T = 2, dt = 0.1, amplitude = 20, sensor_sd = 1.7) {
-    nsteps <- T/dt
-    t <- seq(from = 0, to = T, length.out = nsteps)
 
-    # the following generates a motion profile with single-cycle sinusoidal
-    # acceleration
-    time <- t
-    position <- amplitude*T/(2*pi) * (t-(T/(2*pi)) * sin(2*pi*t/T))
-    velocity <- amplitude * T/(2 * pi) * (1-cos(2 * pi * t/T))
-    acceleration <- amplitude * sin(2 * pi * t/T)
-    trajectory <- rbind(position, velocity, acceleration)
-
-    observations <- rnorm(ncol(trajectory), trajectory[2,], sensor_sd)
-    out <- rbind(time, trajectory, observations)
-}
-
-plot_trajectories <- function(data) {
-    set.seed(44234)
-    data <- data %>% gather(key = "key", value = "value", -time)
-
-    g <- ggplot(data = data, aes(x = time, y = value, color = key)) +
-        geom_line(data = filter(data,
-                                key %in% c("acceleration",
-                                           "velocity",
-                                           "position")),
-                  size = 2) +
-        geom_point(data = filter(data, key == "observations"),
-                   size = 3, shape = 15, color = "black") +
-        xlab("Time") + ylab("Angular velocity [deg]") +
-        # labs(title = "Natural head motion") +
-        # scale_colour_brewer(palette = "Set1")
-        scale_colour_manual(values = sample(color_palette)) +
-        theme(legend.title = element_blank())
-    print(g)
-}
-
-set.seed(8529573L)
-trajectory_data <- generate_data(T = 2, amplitude = 20, sensor_sd = 3.0) %>%
-    t() %>%
-    data.frame()
-
-plot_trajectories(data = trajectory_data)
-
+motiondata <-  generate_data(T = 2, amplitude = 20, sensor_sd = 2.0, as_df = TRUE)
+plot_trajectories(motiondata)
 
 ## plot filtering estimates ----
-plot_filtering_estimates <- function(df) {
+plot_Rbiips_filtering_estimates <- function(df) {
     p <- ggplot(data = df, aes(x = t)) +
         geom_ribbon(aes(ymin = pos_lower, ymax = pos_upper), alpha = 0.3,
                     fill = color_palette[6]) +
@@ -97,7 +57,7 @@ plot_filtering_estimates <- function(df) {
 
 dt <- 0.1
 
-t_max <- length(trajectory_data$observations)
+t_max <- length(motiondata$observations)
 
 # starting position
 mean_x_init <- c(0, 0)
@@ -108,14 +68,14 @@ prec_x_init <- diag(c(
 
 prec_x <- diag(c(
     sd2precision(0.5),
-    sd2precision(1)), nrow = 2)
+    sd2precision(0.5)), nrow = 2)
 
-prec_y <- sd2precision(3.7)
+prec_y <- sd2precision(2.0)
 
 
 # A: process model: implements Newton's laws of motion:
-# x[1, t] = 1 * x[1, t-1] + dt * x[2, t-1]
-# x[2, t] = 0 * x[1, t-1] + 1 * x[2, t-1]
+# x[1, t] = 1 * x[1, t-1] + dt * x[2, t-1] # position
+# x[2, t] = 0 * x[1, t-1] + 1 * x[2, t-1] # velocity
 
 A <- matrix(c(1, dt,
               0, 1), nrow = 2, byrow = TRUE)
@@ -129,8 +89,8 @@ B <- matrix(c(dt^2/2, dt), nrow = 2, byrow = TRUE)
 
 ## specify data ----
 data = list(t_max = t_max,
-            y = trajectory_data$observations,
-            a = trajectory_data$acceleration/20,
+            y = motiondata$observations,
+            a = motiondata$acceleration/20,
             mean_x_init = mean_x_init,
             prec_x_init = prec_x_init,
             prec_x = prec_x,
@@ -191,8 +151,8 @@ df <- data.frame(t = 1:t_max,
                  vel_mean = vel_f_mean,
                  vel_lower = vel_f_lower,
                  vel_upper = vel_f_upper,
-                 velocity = trajectory_data$velocity,
-                 observations = trajectory_data$observations)
+                 velocity = motiondata$velocity,
+                 observations = motiondata$observations)
 
-plot_filtering_estimates(df)
+plot_Rbiips_filtering_estimates(df)
 

@@ -15,6 +15,15 @@ Mode <- function(v) {
     uniqv[which.max(tabulate(match(v, uniqv)))]
 }
 
+#' @export
+displacement <- function(A = 20, T = 2) {
+    (A * T^2) / (2 * pi)
+}
+
+#' @export
+peak_velocity <- function(A = 20, T = 2) {
+    (A * T) / pi
+}
 
 #' @export
 generate_data <- function(T = 2, dt = 0.1, amplitude = 20, sensor_sd = 1.7,
@@ -45,7 +54,7 @@ generate_data <- function(T = 2, dt = 0.1, amplitude = 20, sensor_sd = 1.7,
 plot_trajectories <- function(motiondata, dt = 0.1) {
 
     xend <- length(motiondata$observations) * dt
-    ylim <- max(motiondata$observations)
+    ylim <- max(motiondata$acceleration)
     # ylim <- max(motiondata$position)
 
     opar <- par()
@@ -59,19 +68,23 @@ plot_trajectories <- function(motiondata, dt = 0.1) {
              col = rgb(red = 0, green = 0, blue = 0, alpha = 0.2),
              ylab = "Position [deg] ", xlab = "Time [s]")
 
+        finalpos <- displacement(A = 20, T = xend)
+        abline(h = finalpos, col = "gray60", lty = "dotdash")
+
         lines(acceleration ~ time, lty = "dotted", lwd = 5)
         lines(velocity ~ time, lty = "solid", lwd = 5)
-        # lines(position ~ time, lty = "dashed", lwd = 5)
+        lines(position ~ time, lty = "dashed", lwd = 5)
         points(time, observations,  col = "black", bg = 'white',
                cex = 2, pch = 21, lwd = 2)
     })
     # text(0.5, 9, "Velocity", cex = 1.5, pos = 4)
 
     legend(0.2, -9, legend = c("Acceleration", "Velocity",
-                               "Position", "Observations"),
-           pch = c(rep(NA, 3), 21), col = rep("black", 4),
-           bg = c(rep(NA, 3), "white"),
-           lwd = rep(2.3, 4), lty = c("dotted", "solid", "dashed", NA),
+                               "Position", "Total displacement",
+                               "Observations"),
+           pch = c(rep(NA, 4), 21), col = c(rep("black", 3), "gray60", "black"),
+           bg = c(rep(NA, 4), "white"),
+           lwd = rep(2.3, 5), lty = c("dotted", "solid", "dashed", "dotdash", NA),
            bty = "n", x.intersp = 0.5, cex = 1.5)
     # par(opar)
 }

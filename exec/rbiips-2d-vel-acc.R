@@ -10,28 +10,12 @@ cb_palette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442",
                 "#0072B2", "#D55E00", "#CC79A7", "grey80")
 ggplot2::theme_set(theme_bw())
 
-set.seed(8573L)
 
 
 # generate trajectory and noisy measurements ----
 dt <- 0.1
-amplitude <- 20
-T <- 2
-nsteps <- T/dt
-t <- seq(from = 0, to = T, length.out = nsteps)
-
-# the following generates a motion profile with single-cycle sinusiodal
-# acceleration
-
-position <- amplitude*T/(2*pi) * (t-(T/(2*pi)) * sin(2*pi*t/T))
-velocity <- amplitude * T/(2 * pi) * (1-cos(2 * pi * t/T))
-acceleration <- amplitude * sin(2 * pi * t/T)
-trajectory <- rbind(position, velocity, acceleration)
-
-sensor_sd <- 1.7
-observations <- rnorm(ncol(trajectory), trajectory[2,], sensor_sd)
-
-# observations[10:15] <- NA
+motiondata <-  generate_data(T = 2, amplitude = 20, sensor_sd = 2.0, as_df = TRUE)
+plot_trajectories(motiondata)
 
 
 # converts standard deviation to precision ----
@@ -45,7 +29,8 @@ sd2precision <- function(sd) {
 ## 2 states ----
 ## x[1,] is velocity
 ## x[2,] is acceleration
-t_max <- length(observations)
+
+t_max <- length(motiondata$observations)
 
 # starting position
 mean_x_init <- c(0, 0)
@@ -58,7 +43,7 @@ prec_x <- diag(c(
     sd2precision(1.5),
     sd2precision(1.5)), nrow = 2)
 
-prec_y <- sd2precision(1.7)
+prec_y <- sd2precision(2.0)
 
 
 # A: process model: implements Newton's laws of motion:
@@ -82,7 +67,7 @@ C <- matrix(c(1, 0), nrow = 1, byrow = TRUE)
 
 ## specify data ----
 data = list(t_max = t_max,
-            y = observations,
+            y = motiondata$observations,
             mean_x_init = mean_x_init,
             prec_x_init = prec_x_init,
             prec_x = prec_x,
@@ -142,12 +127,12 @@ df <- data.frame(t = 1:t_max,
                  acc_mean = acc_f_mean,
                  acc_lower = acc_f_lower,
                  acc_upper = acc_f_upper,
-                 velocity = trajectory[2,],
-                 observations = observations)
+                 velocity = motiondata$velocity,
+                 observations = motiondata$observations)
 
 ## plot filtering estimates ----
 
-plot_filtering_estimates <- function(df) {
+plot_Rbiips_filtering_estimates <- function(df) {
     p <- ggplot(data = df, aes(x = t)) +
         geom_ribbon(aes(ymin = vel_lower, ymax = vel_upper), alpha = 0.3,
                     fill = cb_palette[6]) +
@@ -170,10 +155,10 @@ plot_filtering_estimates <- function(df) {
     # ggtitle(paste0("ARIMA -- Holdout MAPE = ", round(100*MAPE,2), "%")) +
     # theme(axis.text.x=element_text(angle = -90, hjust = 0))
 
-    print(p)
+    p
 }
 
-plot_filtering_estimates(df)
+plot_Rbiips_filtering_estimates(df)
 
 
 ## session info ----

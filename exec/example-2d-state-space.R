@@ -107,7 +107,7 @@ plot_filtering_estimates <- function(object, data, predict = FALSE) {
                                  aes(ymin = vel_lower, ymax = vel_upper), alpha = 0.4,
                                  fill = color_palette[4])
     }
-    print(p)
+    p
 }
 
 # generate_data <- function(T = 2, dt = 0.1, amplitude = 20, sensor_sd = 1.7) {
@@ -162,56 +162,81 @@ transfun <- function(x, t, Time, A, sigma, N, dt = 0.1, active = TRUE) {
 # }
 
 
-run_particle_filter <- function(data, N, x_init = c(0, 0), sdx_init = 0.5*eye(2),
-                                params, resample = TRUE, rs_thresh = 0.5,
+run_particle_filter <- function(data, params, resample_particles = TRUE, rs_thresh = 0.5,
                                 active = TRUE) {
 
-
+    # unpack parameters
     sdx <- params$sdx
     sdy <- params$sdy
     transfun <- params$transfun
     A <- params$A
+    N <- params$N
+    x_init <- params$x_init
+    sdx_init <- params$sd_x_init
     Time = length(data$observations)
 
+
+    # initialize variables
     x <- array(rep(0, N*Time), dim = c(N, Time, 2))
     # dimnames(x) <- c("particles", "time", "statevar")
     weights <- matrix(rep(0, N*Time), nrow = N, ncol = Time) #matrix(nrow =  N, ncol = Time)
+    n_eff <- rep(0, Time)
+    resampled <- logical(length = Time)
     loglik <- rep(0, Time)
+    ll <- 0
 
+    # sample from prior distribution
     x[, 1, ] <- mvtnorm::rmvnorm(N, x_init, sdx_init)
-
     weights[, 1] <- dnorm(data$observations[1], x[, 1, 1], sdy)
-    loglik[1] <- log(sum(weights[, 1]))
+    loglik[1] <- log(sum(weights[, 1])) - log(N)
+    ll <- ll + log(sum(weights[, 1])) - log(N)
+
+    # normalize weights
     weights[, 1] <- weights[, 1]/sum(weights[, 1])
+    n_eff[1] <- neff(weights[, 1])
 
-    idx <- sample(dim(x)[1], replace = TRUE, size = N, prob = weights[, 1])
-    x[, 1, ] <- x[idx, 1, ]
 
+    # idx <- sample(dim(x)[1], replace = TRUE, size = N, prob = weights[, 1])
+    # x[, 1, ] <- x[idx, 1, ]
+
+    # FIXME: doesn't work
     # x[, 1, ] <- sample(x[, 1, ], replace = TRUE, size = N, prob = weights[, 1])
 
 
     for (t in seq(2, Time)) {
+        # predict 1 step ahead using process model as proposal distribution
         x[, t, ] <- transfun(x, t, Time, A, sigma = sdx, N, active = active)
 
         if (!is.na(data$observations[t])) {
+            # update
             weights[, t] <- dnorm(data$observations[t], x[, t, 1], sdy)
         } else {
             weights[, t] <- 1/N
         }
-        loglik[t] <- log(sum(weights[, t]))
 
-        if (resample) {
-            if (neff(weights[, t]) < rs_thresh * N) {
+        loglik[t] <- log(sum(weights[, t])) - log(N)
+        ll <- ll + log(sum(weights[, t])) - log(N)
+
+        weights[, t] <- normalize(weights[, t])
+        n_eff[t] <- neff(weights[, t])
+
+        if (resample_particles) {
+            if (n_eff[t] < rs_thresh * N) {
                 # x[, t, ] <- sample(x[, 1, 2], replace = TRUE, size = N, prob = weights[, t])
                 idx <- sample(dim(x)[1], replace = TRUE, size = N, prob = weights[, t])
                 x[, t, ] <- x[idx, t, ]
-            }
-        }
+                resampled[t] <- TRUE
+            } else resampled[t] <- FALSE
+        } else resampled[t] <- FALSE
     }
+
+    logliksum <- sum(loglik)
 
     vel <- x[, , 1]
     acc <- x[, , 2]
     out <- list(x = x, weights = weights, loglik = loglik,
+                logliksum = logliksum, ll = ll,
+                ess = round(n_eff, digits = 0), resample = resampled,
                 vel = vel, acc = acc,
                 acc_means = apply(acc, 2, mean),
                 vel_means = apply(vel, 2, mean),
@@ -235,11 +260,17 @@ data <- vestcog::generate_data(T = 2, amplitude = 20,
 
 # plot_trajectories(data = data)
 
-params <- list(sdx = c(0.1, 1.2) * eye(2), sdy = 3.8, A = 20, transfun = transfun)
+params <- list(sdx = c(0.1, 1.2) * eye(2), sdy = 3.8,
+               x_init <- c(0, 0),
+               sdx_init <- 0.5*eye(2),
+               A = 20, N = 3000,
+               transfun = transfun)
 
-out <- run_particle_filter(data = data, N = 3000,
-                           x_init = c(0, 0), sdx_init = 0.1 * eye(2),
-                           params, resample = TRUE, rs_thresh = 0.5,
+# out <- run_particle_filter(data = data, N = 3000,
+#                            x_init = c(0, 0), sdx_init = 0.1 * eye(2),
+#                            params, resample = TRUE, rs_thresh = 0.5,
+#                            active = TRUE)
+
+out <- run_particle_filter(data = data, params, resample = TRUE, rs_thresh = 0.5,
                            active = TRUE)
-
 plot_filtering_estimates(out, data = data, predict = FALSE)
