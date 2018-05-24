@@ -59,7 +59,7 @@ plot_trajectories <- function(motiondata, dt = 0.1) {
 
     opar <- par()
     par(cex.main = 1.5, mar = c(5, 6, 4, 5) + 0.1, mgp = c(3.0, 1, 0),
-        cex.lab = 1.5, font.lab = 2, cex.axis = 1.3, bty = "l", las = 1,
+        cex.lab = 1.5, font.lab = 2, cex.axis = 1.3, bty = "n", las = 1,
         lwd = 3)
 
     with(motiondata, {
